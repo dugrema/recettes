@@ -32,10 +32,8 @@ d'utiliser l'adresse IPv6 link-local (fe80::...). En autant que votre station
 de travail supporte mDNS, bien sûr!
 
 **Instructions**
-```
-1. sudo apt update
-2. sudo apt -y upgrade
-```
+1. `sudo apt update`
+2. `sudo apt -y upgrade`
 
 ### Avertissements
 
@@ -166,12 +164,12 @@ _Résultat_
     inet6 ::1/128 scope host
        valid_lft forever preferred_lft forever
 2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 state UP qlen 1000
-    **inet6 2607:f2c0:eb70:12ca::1/64 scope global**
+    inet6 2607:f2c0:eb70:12ca::1/64 scope global
        valid_lft forever preferred_lft forever
     inet6 fe80::ba27:ebff:fe01:d0fe/64 scope link
        valid_lft forever preferred_lft forever
 3: eth1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 state UP qlen 1000
-    **inet6 2607:f2c0:f200:1903:f465:b17b:7ba8:6905/128 scope global**
+    inet6 2607:f2c0:f200:1903:f465:b17b:7ba8:6905/128 scope global
        valid_lft forever preferred_lft forever
     inet6 fe80::224:49ff:fe02:b4c2/64 scope link
        valid_lft forever preferred_lft forever
@@ -211,9 +209,9 @@ _Résultat_
 **Instructions**
 1. `sudo cp /etc/sysctl.conf /etc/sysctl.conf.old`
 2. Ajouter les lignes suivantes au fichier /etc/sysctl.conf:
-   a. `sudo nano /etc/sysctl.conf`
-   b. Noter que eth1 est mon interface WAN - ajuster les instructions suivantes au besoin
-   c. Ajouter :
+   - `sudo nano /etc/sysctl.conf`
+   - Noter que eth1 est mon interface WAN - ajuster les instructions suivantes au besoin
+   - Ajouter :
       ```
       net.ipv4.ip_forward=1
       net.ipv6.conf.all.forwarding=1
@@ -232,8 +230,8 @@ _Résultat_
 2. `sudo cp /etc/iptables/rules.v4 /etc/iptables/rules.v4.old`
 3. `sudo cp /etc/iptables/rules.v6 /etc/iptables/rules.v6.old`
 4. Copier les fichiers [rules.v4](rules.v4) et [rules.v6](rules.v6) vers /etc/iptables
-5. Au besoin, ajuster les interfaces dans rules.v4 et rules.v6:
-   a. Dans mon cas: eth0 = LAN, eth1 = WAN
+5. Au besoin, ajuster les interfaces dans rules.v4 et rules.v6.
+   Dans mon cas: eth0 = LAN, eth1 = WAN
 6. `iptables-restore /etc/iptables/rules.v4`
 7. `ip6tables-restore /etc/iptables/rules.v6`
 
