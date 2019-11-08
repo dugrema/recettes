@@ -25,6 +25,12 @@
 Le RaspberryPi doit être déjà initialisé. J'ai utilisé le système d'exploitation
 Raspbian buster lite (https://www.raspberrypi.org/downloads/).
 
+Ici j'assume un travail directement sur le RaspberryPi. Pour travailler à
+distance, il faudra préparer une adresse IPv4 statique ou mieux encore,
+installer avahi-daemon, donner un nom au RaspberryPi ce qui permettra
+d'utiliser l'adresse IPv6 link-local (fe80::...). En autant que votre station
+de travail supporte mDNS, bien sûr!
+
 **Instructions**
 ```
 1. sudo apt update
@@ -33,25 +39,63 @@ Raspbian buster lite (https://www.raspberrypi.org/downloads/).
 
 ### Avertissements
 
-- J'utilise régulièrement Ubuntu sur les RaspberryPi. J'ai tenté d'utiliser la Version
+- J'utilise régulièrement Ubuntu sur les RaspberryPi. J'ai tenté d'utiliser la version
   19.10 armhf sur un RPi2 pour ce projet; je ne suis pas arrivé à faire fonctionner
   le _IP Forwarding_ des connexions TCP même si ICMP (ping, traceroute) fonctionnait bien.
 - Une mauvaise configuration du pare feu peut rendre votre réseau interne
-  accessible d'internet (situation généralement indésirable).
+  accessible d'internet. Pour ceux qui viennent juste de penser "et pis quoi?",
+  j'ajouterais simplement que c'est une situation généralement indésirable à
+  cause Russie et Corée du Nord.
 
 ## Recette
 
 ### Préparer les connexions réseau
 
 J'utilise Raspbian buster lite. Cette distribution utilise ifupdown pour la
-configuration réseau.
+configuration réseau avec dhcpcd pour la configuration des adresses.
 
 **Instructions**
 ```
-1. sudo cp /etc/network/interfaces /etc/network/interfaces.old
-2. Copier le fichier [interfaces](interfaces) vers /etc/network
-3. Modifier le nom des interfaces au besoin. Dans mon cas, eth0 = LAN et eth1 = WAN.
-4. sudo /etc/init.d/networking restart
+1. sudo cp /etc/dhcpcd.conf /etc/dhcpcd.conf.old
+2. Copier le fichier [dhcpcd.conf](dhcpcd.conf) vers /etc/dhcpcd.conf
+3. Modifier le nom des interfaces dans le fichier, au besoin.
+   Dans mon cas, eth0 = LAN et eth1 = WAN.
+4. sudo systemctl restart networking
+5. sudo systemctl daemon-reload
+6. sudo systemctl restart dhcpcd
+```
+
+_Vérifier que networking est redémarré correctement_
+`systemctl status networking`
+
+_Résultat_
+```
+● networking.service - Raise network interfaces
+   Loaded: loaded (/lib/systemd/system/networking.service; enabled; vendor preset: enabled)
+   Active: active (exited) since Fri 2019-11-08 17:44:44 GMT; 12s ago
+     Docs: man:interfaces(5)
+  Process: 798 ExecStart=/sbin/ifup -a --read-environment (code=exited, status=0/SUCCESS)
+ Main PID: 798 (code=exited, status=0/SUCCESS)
+
+Nov 08 17:44:43 pi-host1 systemd[1]: Starting Raise network interfaces...
+Nov 08 17:44:44 pi-host1 systemd[1]: Started Raise network interfaces.
+```
+
+`systemctl status dhcpcd`
+
+_Résultat_
+```
+● dhcpcd.service - dhcpcd on all interfaces
+   Loaded: loaded (/lib/systemd/system/dhcpcd.service; enabled; vendor preset: enabled)
+  Drop-In: /etc/systemd/system/dhcpcd.service.d
+           └─wait.conf
+   Active: active (running) since Fri 2019-11-08 18:07:08 GMT; 4min 35s ago
+  Process: 920 ExecStart=/usr/lib/dhcpcd5/dhcpcd -q -w (code=exited, status=0/SUCCESS)
+ Main PID: 934 (dhcpcd)
+    Tasks: 1 (limit: 2319)
+   Memory: 1.2M
+   CGroup: /system.slice/dhcpcd.service
+           └─934 /sbin/dhcpcd -q -w
 ```
 
 _S'assurer que les interfaces réseau sont bien configurées sur IPv4 :_
@@ -69,33 +113,6 @@ _Résultat_
 3: eth1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
     inet 24.246.11.89/27 brd 255.255.255.255 scope global dynamic eth1
        valid_lft 165919sec preferred_lft 165919sec
-```
-
-`sudo systemctl status networking`
-
-_Résultat_
-```
-● networking.service - Raise network interfaces
-   Loaded: loaded (/lib/systemd/system/networking.service; enabled; vendor preset: enabled)
-   Active: active (exited) since Fri 2019-11-08 14:11:51 GMT; 2s ago
-     Docs: man:interfaces(5)
-  Process: 1695 ExecStart=/sbin/ifup -a --read-environment (code=exited, status=0/SUCCESS)
- Main PID: 1695 (code=exited, status=0/SUCCESS)
-    Tasks: 1 (limit: 2319)
-   Memory: 2.3M
-   CGroup: /system.slice/networking.service
-           └─1767 /sbin/dhclient -4 -v -i -pf /run/dhclient.eth1.pid -lf /var/lib/dhcp/dhclient.eth1.leases -I -df /var/lib/dhcp/dhclient6.eth1.leases eth1
-
-Nov 08 14:11:50 pi-host1 dhclient[1767]: DHCPOFFER of 24.246.11.89 from 209.148.134.196
-Nov 08 14:11:50 pi-host1 ifup[1695]: DHCPOFFER of 24.246.11.89 from 209.148.134.196
-Nov 08 14:11:50 pi-host1 ifup[1695]: DHCPREQUEST for 24.246.11.89 on eth1 to 255.255.255.255 port 67
-Nov 08 14:11:50 pi-host1 dhclient[1767]: DHCPREQUEST for 24.246.11.89 on eth1 to 255.255.255.255 port 67
-Nov 08 14:11:50 pi-host1 dhclient[1767]: DHCPACK of 24.246.11.89 from 209.148.134.196
-Nov 08 14:11:50 pi-host1 ifup[1695]: DHCPACK of 24.246.11.89 from 209.148.134.196
-Nov 08 14:11:50 pi-host1 ifup[1695]: Too few arguments.
-Nov 08 14:11:50 pi-host1 dhclient[1767]: bound to 24.246.11.89 -- renewal in 81577 seconds.
-Nov 08 14:11:50 pi-host1 ifup[1695]: bound to 24.246.11.89 -- renewal in 81577 seconds.
-Nov 08 14:11:51 pi-host1 systemd[1]: Started Raise network interfaces.
 ```
 
 ### Installer wide-dhcpv6-client
@@ -164,8 +181,26 @@ _Résultat_
 ```
 1. sudo apt install dnsmasq
 2. sudo cp /etc/dnsmasq.conf /etc/dnsmasq.conf.old
-3. sudo nano /etc/dnsmasq.conf
+3. Copier le fichier [dnsmasq.conf](dnsmasq.conf) vers /etc
+4. Modifier le nom des interfaces dans le fichier, au besoin.
+   Dans mon cas, eth0 = LAN et eth1 = WAN.
+5. sudo systemctl restart dnsmasq
+```
 
+_Vérifier que dnsmasq est démarré correctement_
+
+`systemctl status dnsmasq`
+
+_Résultat_
+```
+● dnsmasq.service - dnsmasq - A lightweight DHCP and caching DNS server
+   Loaded: loaded (/lib/systemd/system/dnsmasq.service; enabled; vendor preset: enabled)
+   Active: active (running) since Fri 2019-11-08 17:52:41 GMT; 29min ago
+ Main PID: 411 (dnsmasq)
+    Tasks: 1 (limit: 2319)
+   Memory: 2.8M
+   CGroup: /system.slice/dnsmasq.service
+           └─411 /usr/sbin/dnsmasq -x /run/dnsmasq/dnsmasq.pid -u dnsmasq -r /run/dnsma ...
 ```
 
 ### Configurer ip forwarding
@@ -173,11 +208,13 @@ _Résultat_
 **Instructions**
 ```
 1. sudo cp /etc/sysctl.conf /etc/sysctl.conf.old
-2. sudo nano /etc/sysctl.conf
-   a. ajouter les lignes suivantes :
-   b. net.ipv4.ip_forward=1
-   c. net.ipv6.conf.all.forwarding=1
-   d. net.ipv6.conf.eth1.accept_ra=2
+2. Ajouter les lignes suivantes au fichier /etc/sysctl.conf:
+   a. sudo nano /etc/sysctl.conf
+   b. Noter que eth1 est mon interface WAN - ajuster les instructions suivantes au besoin
+   c. Ajouter :
+      net.ipv4.ip_forward=1
+      net.ipv6.conf.all.forwarding=1
+      net.ipv6.conf.eth1.accept_ra=2
 3. sudo sysctl -p
 ```
 
