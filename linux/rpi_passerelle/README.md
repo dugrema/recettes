@@ -47,6 +47,96 @@ de travail supporte mDNS, bien sûr!
 
 ## Recette
 
+### Configurer le pare feu
+
+On configure le pare feu à cette étape pour s'assurer d'avoir une connexion
+à internet relativement sécuritaire. La connexion internet est probablement
+déjà prête à l'emploi si votre fournisseur internet fonctionne par DHCP.
+
+**Fichiers**
+- [rules.v4](rules.v4)
+- [rules.v6](rules.v6)
+
+**Instructions**
+1. `apt install -y iptables-persistent`
+2. A la question _save current IPv4 rules_ (et IPv6), repondre oui.
+2. `sudo cp /etc/iptables/rules.v4 /etc/iptables/rules.v4.old`
+3. `sudo cp /etc/iptables/rules.v6 /etc/iptables/rules.v6.old`
+4. Copier les fichiers [rules.v4](rules.v4) et [rules.v6](rules.v6) vers /etc/iptables
+5. Au besoin, ajuster les interfaces dans rules.v4 et rules.v6.
+   Dans mon cas: eth0 = LAN, eth1 = WAN
+6. `sudo iptables-restore /etc/iptables/rules.v4`
+7. `sudo ip6tables-restore /etc/iptables/rules.v6`
+
+_Vérifier que les règles sont bien chargées_
+
+**Exécuter :** `sudo iptables -L -vn`
+
+_Résultat_
+
+```
+Chain INPUT (policy DROP 3 packets, 120 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+    0     0 ACCEPT     all  --  lo     *       0.0.0.0/0            0.0.0.0/0
+    1    76 ACCEPT     all  --  *      *       0.0.0.0/0            0.0.0.0/0            state RELATED,ESTABLISHED
+  170 19334 ACCEPT     all  --  eth0   *       0.0.0.0/0            0.0.0.0/0            state NEW
+
+Chain FORWARD (policy DROP 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+    0     0 ACCEPT     all  --  eth1   eth0    0.0.0.0/0            0.0.0.0/0            state RELATED,ESTABLISHED
+    0     0 ACCEPT     all  --  eth0   eth1    0.0.0.0/0            0.0.0.0/0
+    0     0 REJECT     all  --  eth1   eth0    0.0.0.0/0            0.0.0.0/0            reject-with icmp-port-unreachable
+
+Chain OUTPUT (policy ACCEPT 108 packets, 10299 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+```
+
+**Exécuter :** `sudo iptables -t nat -L -vn`
+
+```
+Chain PREROUTING (policy ACCEPT 292 packets, 21940 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+
+Chain INPUT (policy ACCEPT 136 packets, 12593 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+
+Chain POSTROUTING (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+    1    76 MASQUERADE  all  --  *      eth1    0.0.0.0/0            0.0.0.0/0
+
+Chain OUTPUT (policy ACCEPT 1 packets, 76 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+```
+
+**Exécuter :** `sudo ip6tables -L -vn`
+
+```
+Chain INPUT (policy DROP 2 packets, 148 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+    0     0 ACCEPT     all      lo     *       ::/0                 ::/0
+   71  5312 ACCEPT     all      *      *       ::/0                 ::/0                 state RELATED,ESTABLISHED
+   19  5892 ACCEPT     all      eth0   *       ::/0                 ::/0                 state NEW
+    0     0 ACCEPT     udp      eth1   *       fe80::/16            ::/0                 udp dpt:546
+    0     0 ACCEPT     icmpv6    *      *       ::/0                 ::/0                 ipv6-icmptype 1
+    0     0 ACCEPT     icmpv6    *      *       ::/0                 ::/0                 ipv6-icmptype 2
+    0     0 ACCEPT     icmpv6    *      *       ::/0                 ::/0                 ipv6-icmptype 3
+    0     0 ACCEPT     icmpv6    *      *       ::/0                 ::/0                 ipv6-icmptype 4
+    0     0 ACCEPT     icmpv6    *      *       ::/0                 ::/0                 ipv6-icmptype 128 limit: avg 15/sec burst 5
+    0     0 ACCEPT     icmpv6    *      *       ::/0                 ::/0                 ipv6-icmptype 129 limit: avg 15/sec burst 5
+    0     0 ACCEPT     icmpv6    *      *       ::/0                 ::/0                 ipv6-icmptype 134 HL match HL == 255
+    0     0 ACCEPT     icmpv6    *      *       ::/0                 ::/0                 ipv6-icmptype 135 HL match HL == 255
+    0     0 ACCEPT     icmpv6    *      *       ::/0                 ::/0                 ipv6-icmptype 136 HL match HL == 255
+
+Chain FORWARD (policy DROP 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+    0     0 ACCEPT     all      eth1   eth0    ::/0                 ::/0                 state RELATED,ESTABLISHED
+    0     0 ACCEPT     all      eth0   eth1    ::/0                 ::/0
+    0     0 ACCEPT     all      eth0   eth0    ::/0                 ::/0
+
+Chain OUTPUT (policy ACCEPT 57 packets, 8720 bytes)
+ pkts bytes target     prot opt in     out     source               destination
+```
+
 ### Préparer les connexions réseau
 
 J'utilise Raspbian buster lite. Cette distribution utilise ifupdown pour la
@@ -57,7 +147,7 @@ configuration réseau avec dhcpcd pour la configuration des adresses.
 
 **Instructions**
 1. `sudo cp /etc/dhcpcd.conf /etc/dhcpcd.conf.old`
-2. Copier le fichier [dhcpcd.conf](dhcpcd.conf) vers /etc/dhcpcd.conf
+2. Copier le fichier [dhcpcd.conf](dhcpcd.conf) vers /etc
 3. Modifier le nom des interfaces dans le fichier, au besoin.
    Dans mon cas, eth0 = LAN et eth1 = WAN.
 4. `sudo systemctl restart networking`
@@ -72,16 +162,15 @@ _Résultat_
 ```
 ● networking.service - Raise network interfaces
    Loaded: loaded (/lib/systemd/system/networking.service; enabled; vendor preset: enabled)
-   Active: active (exited) since Fri 2019-11-08 17:44:44 GMT; 12s ago
+   Active: active (exited) since Thu 2019-09-26 01:38:30 BST; 31s ago
      Docs: man:interfaces(5)
-  Process: 798 ExecStart=/sbin/ifup -a --read-environment (code=exited, status=0/SUCCESS)
- Main PID: 798 (code=exited, status=0/SUCCESS)
-
-Nov 08 17:44:43 pi-host1 systemd[1]: Starting Raise network interfaces...
-Nov 08 17:44:44 pi-host1 systemd[1]: Started Raise network interfaces.
+ Main PID: 597 (code=exited, status=0/SUCCESS)
+    Tasks: 0 (limit: 2319)
+   Memory: 0B
+   CGroup: /system.slice/networking.service
 ```
 
-**Exécuter :** `systemctl status dhcpcd`
+**Exécuter :** `sudo systemctl status dhcpcd`
 
 _Résultat_
 ```
@@ -89,13 +178,24 @@ _Résultat_
    Loaded: loaded (/lib/systemd/system/dhcpcd.service; enabled; vendor preset: enabled)
   Drop-In: /etc/systemd/system/dhcpcd.service.d
            └─wait.conf
-   Active: active (running) since Fri 2019-11-08 18:07:08 GMT; 4min 35s ago
-  Process: 920 ExecStart=/usr/lib/dhcpcd5/dhcpcd -q -w (code=exited, status=0/SUCCESS)
- Main PID: 934 (dhcpcd)
+   Active: active (running) since Thu 2019-09-26 01:45:24 BST; 1min 11s ago
+  Process: 1059 ExecStart=/usr/lib/dhcpcd5/dhcpcd -q -w (code=exited, status=0/SUCCESS)
+ Main PID: 1079 (dhcpcd)
     Tasks: 1 (limit: 2319)
-   Memory: 1.2M
+   Memory: 1.3M
    CGroup: /system.slice/dhcpcd.service
-           └─934 /sbin/dhcpcd -q -w
+           └─1079 /sbin/dhcpcd -q -w
+
+Sep 26 01:45:24 ns1 systemd[1]: Started dhcpcd on all interfaces.
+Sep 26 01:45:29 ns1 dhcpcd[1079]: eth1: using IPv4LL address 169.254.229.104
+Sep 26 01:45:29 ns1 dhcpcd[1079]: eth1: adding route to 169.254.0.0/16
+Sep 26 01:45:29 ns1 dhcpcd[1079]: eth1: adding default route
+Sep 26 01:45:29 ns1 dhcpcd[1079]: eth1: leased 24.246.8.56 for 155325 seconds
+Sep 26 01:45:29 ns1 dhcpcd[1079]: eth1: adding route to 24.246.8.32/27
+Sep 26 01:45:29 ns1 dhcpcd[1079]: eth1: changing default route via 24.246.8.33
+Sep 26 01:45:29 ns1 dhcpcd[1079]: eth1: deleting route to 169.254.0.0/16
+Sep 26 01:45:31 ns1 dhcpcd[1079]: eth0: no IPv6 Routers available
+Sep 26 01:45:31 ns1 dhcpcd[1079]: eth1: no IPv6 Routers available
 ```
 
 _S'assurer que les interfaces réseau sont bien configurées sur IPv4 :_
@@ -108,11 +208,11 @@ _Résultat_
     inet 127.0.0.1/8 scope host lo
        valid_lft forever preferred_lft forever
 2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
-    inet 192.168.1.1/24 brd 192.168.1.255 scope global eth0
+    inet 192.168.1.1/24 brd 192.168.1.255 scope global noprefixroute eth0
        valid_lft forever preferred_lft forever
 3: eth1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
-    inet 24.246.11.89/27 brd 255.255.255.255 scope global dynamic eth1
-       valid_lft 165919sec preferred_lft 165919sec
+    inet 24.246.8.56/27 brd 255.255.255.255 scope global noprefixroute eth1
+       valid_lft forever preferred_lft forever
 ```
 
 ### Installer wide-dhcpv6-client
@@ -126,6 +226,10 @@ avec le client dhcpcd intégré à Raspbian, je n'ai juste pas trouvé la recett
 
 **Instructions**
 1. `sudo apt install -y wide-dhcpv6-client`
+   - À la question sur l'interface réseau
+     (Interfaces on which the DHCPv6 client sends requests),
+     répondre par votre interface WAN.
+   - Dans mon cas c'est eth1.
 2. `sudo cp /etc/wide-dhcpv6/dhcp6c.conf /etc/wide-dhcpv6/dhcp6c.conf.old`
 3. Copier le fichier [dhcp6c.conf](dhcp6c.conf) vers /etc/wide-dhcpv6
    Note: Dans ma version, eth1 représente le réseau externe (WAN via USB) et
@@ -141,17 +245,17 @@ _Résultat_
 ```
 ● wide-dhcpv6-client.service - LSB: Start/Stop WIDE DHCPv6 client
    Loaded: loaded (/etc/init.d/wide-dhcpv6-client; generated)
-   Active: active (running) since Fri 2019-11-08 15:14:03 GMT; 6s ago
+   Active: active (running) since Fri 2019-11-08 21:51:38 GMT; 7s ago
      Docs: man:systemd-sysv-generator(8)
-  Process: 2284 ExecStart=/etc/init.d/wide-dhcpv6-client start (code=exited, status=0/SUCCESS)
+  Process: 2036 ExecStart=/etc/init.d/wide-dhcpv6-client start (code=exited, status=0/SUCCESS)
     Tasks: 1 (limit: 2319)
-   Memory: 1.2M
+   Memory: 872.0K
    CGroup: /system.slice/wide-dhcpv6-client.service
-           └─2289 /usr/sbin/dhcp6c -Pdefault eth1
+           └─2040 /usr/sbin/dhcp6c -Pdefault eth1
 
-Nov 08 15:14:01 pi-host1 systemd[1]: Starting LSB: Start/Stop WIDE DHCPv6 client...
-Nov 08 15:14:03 pi-host1 wide-dhcpv6-client[2284]: Starting WIDE DHCPv6 client: dhcp6c.
-Nov 08 15:14:03 pi-host1 systemd[1]: Started LSB: Start/Stop WIDE DHCPv6 client.
+Nov 08 21:51:36 ns1 systemd[1]: Starting LSB: Start/Stop WIDE DHCPv6 client...
+Nov 08 21:51:38 ns1 wide-dhcpv6-client[2036]: Starting WIDE DHCPv6 client: dhcp6c.
+Nov 08 21:51:38 ns1 systemd[1]: Started LSB: Start/Stop WIDE DHCPv6 client.
 ```
 
 _Vérifier que les adresses IPv6 globales ont été attribuées_
@@ -164,14 +268,14 @@ _Résultat_
     inet6 ::1/128 scope host
        valid_lft forever preferred_lft forever
 2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 state UP qlen 1000
-    inet6 2607:f2c0:eb70:12ca::1/64 scope global
+    inet6 2607:f2c0:eb70:1242::1/64 scope global
        valid_lft forever preferred_lft forever
-    inet6 fe80::ba27:ebff:fe01:d0fe/64 scope link
+    inet6 fe80::9ec4:862e:d432:37c3/64 scope link
        valid_lft forever preferred_lft forever
 3: eth1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 state UP qlen 1000
-    inet6 2607:f2c0:f200:1903:f465:b17b:7ba8:6905/128 scope global
+    inet6 2607:f2c0:f200:1903:69c3:89ee:d0ac:6fd1/128 scope global
        valid_lft forever preferred_lft forever
-    inet6 fe80::224:49ff:fe02:b4c2/64 scope link
+    inet6 fe80::7faa:eb34:19a9:7383/64 scope link
        valid_lft forever preferred_lft forever
 ```
 
@@ -196,19 +300,22 @@ _Résultat_
 ```
 ● dnsmasq.service - dnsmasq - A lightweight DHCP and caching DNS server
    Loaded: loaded (/lib/systemd/system/dnsmasq.service; enabled; vendor preset: enabled)
-   Active: active (running) since Fri 2019-11-08 17:52:41 GMT; 29min ago
- Main PID: 411 (dnsmasq)
+   Active: active (running) since Fri 2019-11-08 21:54:00 GMT; 7s ago
+  Process: 2392 ExecStartPre=/usr/sbin/dnsmasq --test (code=exited, status=0/SUCCESS)
+  Process: 2393 ExecStart=/etc/init.d/dnsmasq systemd-exec (code=exited, status=0/SUCCESS)
+  Process: 2401 ExecStartPost=/etc/init.d/dnsmasq systemd-start-resolvconf (code=exited, status=0/SUCCESS)
+ Main PID: 2400 (dnsmasq)
     Tasks: 1 (limit: 2319)
-   Memory: 2.8M
+   Memory: 1.2M
    CGroup: /system.slice/dnsmasq.service
-           └─411 /usr/sbin/dnsmasq -x /run/dnsmasq/dnsmasq.pid -u dnsmasq -r /run/dnsma ...
+           └─2400 /usr/sbin/dnsmasq -x /run/dnsmasq/dnsmasq.pid -u dnsmasq -r /run/dnsmasq/resolv.conf -7 ...
 ```
 
 ### Configurer ip forwarding
 
 **Instructions**
 1. `sudo cp /etc/sysctl.conf /etc/sysctl.conf.old`
-2. Ajouter les lignes suivantes au fichier /etc/sysctl.conf:
+2. Configurer le fichier /etc/sysctl.conf:
    - `sudo nano /etc/sysctl.conf`
    - Noter que eth1 est mon interface WAN - ajuster les instructions suivantes au besoin
    - Ajouter :
@@ -219,21 +326,13 @@ _Résultat_
       ```
 3. `sudo sysctl -p`
 
-### Configurer le pare feu
+_Résultat affiché_
 
-**Fichiers**
-- [rules.v4](rules.v4)
-- [rules.v6](rules.v6)
-
-**Instructions**
-1. `apt install -y iptables-persistent`
-2. `sudo cp /etc/iptables/rules.v4 /etc/iptables/rules.v4.old`
-3. `sudo cp /etc/iptables/rules.v6 /etc/iptables/rules.v6.old`
-4. Copier les fichiers [rules.v4](rules.v4) et [rules.v6](rules.v6) vers /etc/iptables
-5. Au besoin, ajuster les interfaces dans rules.v4 et rules.v6.
-   Dans mon cas: eth0 = LAN, eth1 = WAN
-6. `iptables-restore /etc/iptables/rules.v4`
-7. `ip6tables-restore /etc/iptables/rules.v6`
+```
+net.ipv4.ip_forward = 1
+net.ipv6.conf.all.forwarding = 1
+net.ipv6.conf.eth1.accept_ra = 2
+```
 
 # Le goûteur
 
