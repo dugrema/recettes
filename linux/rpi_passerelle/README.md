@@ -54,10 +54,13 @@ de travail supporte mDNS, bien sûr!
 J'utilise Raspbian buster lite. Cette distribution utilise ifupdown pour la
 configuration réseau avec dhcpcd pour la configuration des adresses.
 
+**Fichiers**
+- [dhcpcd.conf](dhcpcd.conf)
+
 **Instructions**
 ```
 1. sudo cp /etc/dhcpcd.conf /etc/dhcpcd.conf.old
-2. Copier le fichier [dhcpcd.conf](dhcpcd.conf) vers /etc/dhcpcd.conf
+2. Copier le fichier dhcpcd.conf vers /etc/dhcpcd.conf
 3. Modifier le nom des interfaces dans le fichier, au besoin.
    Dans mon cas, eth0 = LAN et eth1 = WAN.
 4. sudo systemctl restart networking
@@ -66,7 +69,7 @@ configuration réseau avec dhcpcd pour la configuration des adresses.
 ```
 
 _Vérifier que networking est redémarré correctement_
-`systemctl status networking`
+**Exécuter :** `systemctl status networking`
 
 _Résultat_
 ```
@@ -81,7 +84,7 @@ Nov 08 17:44:43 pi-host1 systemd[1]: Starting Raise network interfaces...
 Nov 08 17:44:44 pi-host1 systemd[1]: Started Raise network interfaces.
 ```
 
-`systemctl status dhcpcd`
+**Exécuter :** `systemctl status dhcpcd`
 
 _Résultat_
 ```
@@ -100,7 +103,7 @@ _Résultat_
 
 _S'assurer que les interfaces réseau sont bien configurées sur IPv4 :_
 
-`ip -4 a`
+**Exécuter :** `ip -4 a`
 
 _Résultat_
 ```
@@ -121,12 +124,15 @@ _wide-dhcpv6-client_ est le premier client DHCP avec lequel j'ai réussi à fair
 fonctionner IPv6-PD (Prefix Delegation). C'est probablement possible de le faire
 avec le client dhcpcd intégré à Raspbian, je n'ai juste pas trouvé la recette.
 
+**Fichiers**
+- [dhcp6c.conf](dhcp6c.conf)
+
 **Instructions**
 ```
 1. sudo apt install -y wide-dhcpv6-client
 2. sudo cp /etc/wide-dhcpv6/dhcp6c.conf /etc/wide-dhcpv6/dhcp6c.conf.old
 2. sudo nano /etc/wide-dhcpv6/dhcp6c.conf
-   a. Remplacer le contenu par ce fichier : [dhcp6c.conf](dhcp6c.conf)
+   a. Remplacer le contenu par ce fichier : dhcp6c.conf
    b. Dans ma version, eth1 représente le réseau externe (WAN via USB) et eth0 le réseau
       interne (connexion réseau intégrée au RPi). Vous pouvez ajuster selon votre
       configuration.
@@ -135,7 +141,7 @@ avec le client dhcpcd intégré à Raspbian, je n'ai juste pas trouvé la recett
 
 _Confirmer que le client fonctionne_
 
-`sudo systemctl status wide-dhcpv6-client`
+**Exécuter :** `sudo systemctl status wide-dhcpv6-client`
 
 _Résultat_
 ```
@@ -156,7 +162,7 @@ Nov 08 15:14:03 pi-host1 systemd[1]: Started LSB: Start/Stop WIDE DHCPv6 client.
 
 _Vérifier que les adresses IPv6 globales ont été attribuées_
 
-`ip -6 a`
+**Exécuter :** `ip -6 a`
 
 _Résultat_
 ```
@@ -177,11 +183,14 @@ _Résultat_
 
 ### Installer dnsmasq
 
+**Fichiers**
+- [dnsmasq.conf](dnsmasq.conf)
+
 **Instructions**
 ```
 1. sudo apt install dnsmasq
 2. sudo cp /etc/dnsmasq.conf /etc/dnsmasq.conf.old
-3. Copier le fichier [dnsmasq.conf](dnsmasq.conf) vers /etc
+3. Copier le fichier dnsmasq.conf vers /etc
 4. Modifier le nom des interfaces dans le fichier, au besoin.
    Dans mon cas, eth0 = LAN et eth1 = WAN.
 5. sudo systemctl restart dnsmasq
@@ -189,7 +198,7 @@ _Résultat_
 
 _Vérifier que dnsmasq est démarré correctement_
 
-`systemctl status dnsmasq`
+**Exécuter :** `systemctl status dnsmasq`
 
 _Résultat_
 ```
@@ -220,12 +229,16 @@ _Résultat_
 
 ### Configurer le pare feu
 
+**Fichiers**
+- [rules.v4](rules.v4)
+- [rules.v6](rules.v6)
+
 **Instructions**
 ```
 1. apt install -y iptables-persistent
 2. sudo cp /etc/iptables/rules.v4 /etc/iptables/rules.v4.old
 3. sudo cp /etc/iptables/rules.v6 /etc/iptables/rules.v6.old
-4. Copier les fichiers [rules.v4](rules.v4) et [rules.v6](rules.v6) vers /etc/iptables
+4. Copier les fichiers rules.v4 et rules.v6 vers /etc/iptables
 5. Au besoin, ajuster les interfaces dans rules.v4 et rules.v6:
    a. Dans mon cas: eth0 = LAN, eth1 = WAN
 6. iptables-restore /etc/iptables/rules.v4
