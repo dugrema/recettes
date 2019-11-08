@@ -58,17 +58,16 @@ configuration réseau avec dhcpcd pour la configuration des adresses.
 - [dhcpcd.conf](dhcpcd.conf)
 
 **Instructions**
-```
-1. sudo cp /etc/dhcpcd.conf /etc/dhcpcd.conf.old
-2. Copier le fichier dhcpcd.conf vers /etc/dhcpcd.conf
+1. `sudo cp /etc/dhcpcd.conf /etc/dhcpcd.conf.old`
+2. Copier le fichier [dhcpcd.conf](dhcpcd.conf) vers /etc/dhcpcd.conf
 3. Modifier le nom des interfaces dans le fichier, au besoin.
    Dans mon cas, eth0 = LAN et eth1 = WAN.
-4. sudo systemctl restart networking
-5. sudo systemctl daemon-reload
-6. sudo systemctl restart dhcpcd
-```
+4. `sudo systemctl restart networking`
+5. `sudo systemctl daemon-reload`
+6. `sudo systemctl restart dhcpcd`
 
 _Vérifier que networking est redémarré correctement_
+
 **Exécuter :** `systemctl status networking`
 
 _Résultat_
@@ -128,16 +127,13 @@ avec le client dhcpcd intégré à Raspbian, je n'ai juste pas trouvé la recett
 - [dhcp6c.conf](dhcp6c.conf)
 
 **Instructions**
-```
-1. sudo apt install -y wide-dhcpv6-client
-2. sudo cp /etc/wide-dhcpv6/dhcp6c.conf /etc/wide-dhcpv6/dhcp6c.conf.old
-2. sudo nano /etc/wide-dhcpv6/dhcp6c.conf
-   a. Remplacer le contenu par ce fichier : dhcp6c.conf
-   b. Dans ma version, eth1 représente le réseau externe (WAN via USB) et eth0 le réseau
-      interne (connexion réseau intégrée au RPi). Vous pouvez ajuster selon votre
-      configuration.
-3. sudo systemctl restart wide-dhcpv6-client
-```
+1. `sudo apt install -y wide-dhcpv6-client`
+2. `sudo cp /etc/wide-dhcpv6/dhcp6c.conf /etc/wide-dhcpv6/dhcp6c.conf.old`
+3. Copier le fichier [dhcp6c.conf](dhcp6c.conf) vers /etc/wide-dhcpv6
+   Note: Dans ma version, eth1 représente le réseau externe (WAN via USB) et
+   eth0 le réseau interne (connexion réseau intégrée au RPi). Vous pouvez
+   ajuster selon votre configuration.
+4. `sudo systemctl restart wide-dhcpv6-client`
 
 _Confirmer que le client fonctionne_
 
@@ -187,14 +183,12 @@ _Résultat_
 - [dnsmasq.conf](dnsmasq.conf)
 
 **Instructions**
-```
-1. sudo apt install dnsmasq
-2. sudo cp /etc/dnsmasq.conf /etc/dnsmasq.conf.old
-3. Copier le fichier dnsmasq.conf vers /etc
+1. `sudo apt install dnsmasq`
+2. `sudo cp /etc/dnsmasq.conf /etc/dnsmasq.conf.old`
+3. Copier le fichier [dnsmasq.conf](dnsmasq.conf) vers /etc
 4. Modifier le nom des interfaces dans le fichier, au besoin.
    Dans mon cas, eth0 = LAN et eth1 = WAN.
-5. sudo systemctl restart dnsmasq
-```
+5. `sudo systemctl restart dnsmasq`
 
 _Vérifier que dnsmasq est démarré correctement_
 
@@ -215,17 +209,17 @@ _Résultat_
 ### Configurer ip forwarding
 
 **Instructions**
-```
-1. sudo cp /etc/sysctl.conf /etc/sysctl.conf.old
+1. `sudo cp /etc/sysctl.conf /etc/sysctl.conf.old`
 2. Ajouter les lignes suivantes au fichier /etc/sysctl.conf:
-   a. sudo nano /etc/sysctl.conf
+   a. `sudo nano /etc/sysctl.conf`
    b. Noter que eth1 est mon interface WAN - ajuster les instructions suivantes au besoin
    c. Ajouter :
+      ```
       net.ipv4.ip_forward=1
       net.ipv6.conf.all.forwarding=1
       net.ipv6.conf.eth1.accept_ra=2
-3. sudo sysctl -p
-```
+      ```
+3. `sudo sysctl -p`
 
 ### Configurer le pare feu
 
@@ -234,16 +228,14 @@ _Résultat_
 - [rules.v6](rules.v6)
 
 **Instructions**
-```
-1. apt install -y iptables-persistent
-2. sudo cp /etc/iptables/rules.v4 /etc/iptables/rules.v4.old
-3. sudo cp /etc/iptables/rules.v6 /etc/iptables/rules.v6.old
-4. Copier les fichiers rules.v4 et rules.v6 vers /etc/iptables
+1. `apt install -y iptables-persistent`
+2. `sudo cp /etc/iptables/rules.v4 /etc/iptables/rules.v4.old`
+3. `sudo cp /etc/iptables/rules.v6 /etc/iptables/rules.v6.old`
+4. Copier les fichiers [rules.v4](rules.v4) et [rules.v6](rules.v6) vers /etc/iptables
 5. Au besoin, ajuster les interfaces dans rules.v4 et rules.v6:
    a. Dans mon cas: eth0 = LAN, eth1 = WAN
-6. iptables-restore /etc/iptables/rules.v4
-7. ip6tables-restore /etc/iptables/rules.v6
-```
+6. `iptables-restore /etc/iptables/rules.v4`
+7. `ip6tables-restore /etc/iptables/rules.v6`
 
 # Le goûteur
 
