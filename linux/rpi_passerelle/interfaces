@@ -6,13 +6,13 @@
 # Include files from /etc/network/interfaces.d:
 source-directory /etc/network/interfaces.d
 
+# Conserver la configuration pour eth0 -
+# L'adresse statique va dans /etc/dhcpcd.conf
 auto eth0
-iface eth0 inet static
-  address 192.168.1.1
-  netmask 255.255.255.0
+iface eth0 inet dhcp
 
+# Configurer l'interface eth1
 auto eth1
 iface eth1 inet dhcp
 
-iface eth1 inet6 auto
-  accept_ra 2
+# iface eth1 inet6 auto
