@@ -36,7 +36,7 @@
 Créer un tunnel /48 sur [Tunnelbroker](https://tunnelbroker.net/) - c'est gratuit.
 Il suffit de s'enregistrer, créer un tunnel (/64) puis de cliquer sur le
 bouton _Assign /48_. Sur l'image du bas, on voit que j'ai reçu _2001:470:b080_ sur la ligne _Routed /48_.
-Ces adresses sont statiques - j'en ai une depuis plus d'un an et elle n'a jamais changée.
+Ces adresses sont statiques - j'en ai une depuis plus d'un an et elle n'a jamais changé.
 
 ![Exemple d'écran TunneBroker](he_details.png)
 
@@ -51,7 +51,8 @@ En ce moment, Tunnelbroker permet de créer 5 tunnels gratuits.
 3. Noter que HE_ENDPOINT_PREFIX provient de l'adresse _IPV6 Tunnel Endpoints_, _Client IPV6 Address_
    de la page de TunnelBroker. Le tunnel est toujours ::1 pour le endpoint serveur et ::2 pour client.
    Dans mon cas, l'adresse est 2001:470:1c:11d::2, alors le prefixe /64 est 2001:470:1c:11d.
-4. `sudo systemctl restart dhcpcd`
+4. `sudo systemctl daemon-reload`
+5. `sudo systemctl restart dhcpcd`
 
 _Vérifier que le tunnel est actif_
 
