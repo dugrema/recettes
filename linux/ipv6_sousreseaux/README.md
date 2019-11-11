@@ -19,7 +19,8 @@
 - Un routeur configuré avec ce projet: [Un RaspberryPi comme passerelle réseau](../rpi_passerelle/README.md)
 - Un compte gratuit avec [Tunnelbroker](https://tunnelbroker.net/) de Hurricane Electric.
 - Un ordinateur ou machine virtuelle avec Linux déjà fonctionnel avec IPv4 relié au
-  réseau du routeur. J'utilise une machine virtuelle avec Ubuntu 18 Server.
+  réseau du routeur. J'utilise une machine virtuelle avec Ubuntu 18 Server et la configuration
+  réseau avec netplan.
 
 ## Avertissements
 
@@ -185,6 +186,17 @@ PING www.google.ca(yyz12s06-in-x03.1e100.net (2607:f8b0:400b:802::2003)) from 20
 64 bytes from yyz12s06-in-x03.1e100.net (2607:f8b0:400b:802::2003): icmp_seq=1 ttl=57 time=18.6 ms
 64 bytes from yyz12s06-in-x03.1e100.net (2607:f8b0:400b:802::2003): icmp_seq=2 ttl=57 time=17.2 ms
 ```
+
+# Le goûteur
+
+Il faut maintenant vérifier s'il est possible d'accéder au nouveau sous-réseau
+de l'extérieur. Il faut vous trouver un ordinateur / appareil mobile avec une
+connexion à internet à l'extérieur de votre réseau et faire un ping vers
+votre adresse interne (dans l'exemple, 2001:470:b080:103::1).
+
+Si ça fonctionne, vous êtes maintenant en possession d'un sous-réseau accessible
+globalement avec adresses IPv6 statiques et la possibilité de créer 65534 autres
+sous-réseaux /64 similaires.
 
 # Références
 
