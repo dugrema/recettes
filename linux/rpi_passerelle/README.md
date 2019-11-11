@@ -35,7 +35,7 @@ de travail supporte mDNS, bien sûr!
 1. `sudo apt update`
 2. `sudo apt -y upgrade`
 
-### Avertissements
+## Avertissements
 
 - J'utilise régulièrement Ubuntu sur les RaspberryPi. J'ai tenté d'utiliser la version
   19.10 armhf sur un RPi2 pour ce projet; je ne suis pas arrivé à faire fonctionner
@@ -45,9 +45,9 @@ de travail supporte mDNS, bien sûr!
   j'ajouterais simplement que c'est une situation généralement indésirable à
   cause Russie et Corée du Nord.
 
-## Recette
+# Recette
 
-### Configurer le pare feu
+## Configurer le pare feu
 
 On configure le pare feu à cette étape pour s'assurer d'avoir une connexion
 à internet relativement sécuritaire. La connexion internet est probablement
@@ -139,7 +139,7 @@ Chain OUTPUT (policy ACCEPT 57 packets, 8720 bytes)
  pkts bytes target     prot opt in     out     source               destination
 ```
 
-### Préparer les connexions réseau
+## Préparer les connexions réseau
 
 J'utilise Raspbian buster lite. Cette distribution utilise ifupdown pour la
 configuration réseau avec dhcpcd pour la configuration des adresses.
@@ -217,7 +217,7 @@ _Résultat_
        valid_lft forever preferred_lft forever
 ```
 
-### Installer wide-dhcpv6-client
+## Installer wide-dhcpv6-client
 
 _wide-dhcpv6-client_ est le premier client DHCP avec lequel j'ai réussi à faire
 fonctionner IPv6-PD (Prefix Delegation). C'est probablement possible de le faire
@@ -281,7 +281,7 @@ _Résultat_
        valid_lft forever preferred_lft forever
 ```
 
-### Installer dnsmasq
+## Installer dnsmasq
 
 **Fichiers**
 - [dnsmasq.conf](dnsmasq.conf)

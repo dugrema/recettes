@@ -34,16 +34,16 @@
 
 Créer un tunnel /48 sur [Tunnelbroker](https://tunnelbroker.net/) - c'est gratuit.
 Il suffit de s'enregistrer, créer un tunnel (/64) puis de cliquer sur le
-bouton _Assign /48_. Sur l'image du bas, on voit que j'ai reçu _2001:470:b080_ sur la ligne _Routed /48_. 
+bouton _Assign /48_. Sur l'image du bas, on voit que j'ai reçu _2001:470:b080_ sur la ligne _Routed /48_.
 Ces adresses sont statiques - j'en ai une depuis plus d'un an et elle n'a jamais changée.
 
 ![Exemple d'écran TunneBroker](he_details.png)
 
 En ce moment, Tunnelbroker permet de créer 5 tunnels gratuits.
 
-## Recette
+# Recette
 
-### Créer le tunnel avec TunnelBroker
+## Créer le tunnel avec TunnelBroker
 
 1. Copier le fichier [60-he-tunnel.conf](60-he-tunnel.conf) vers /lib/dhcpcd/dhcpcd-hooks
 2. Ajuster les variables de la section _Parametres du tunnel_ dans le haut du script.
@@ -65,7 +65,7 @@ PING 2001:470:1c:11d::1(2001:470:1c:11d::1) from 2001:470:1c:11d::2 : 56 data by
 64 bytes from 2001:470:1c:11d::1: icmp_seq=2 ttl=64 time=18.9 ms
 ```
 
-### Configurer un nouveau sous-réseau sur un serveur
+## Configurer un nouveau sous-réseau sur un serveur
 
 Pour cette recette, les sous-réseaux seront attribués avec un préfixe /64 et
 routé directement via l'interface link-local du serveur qui agira comme
@@ -184,31 +184,6 @@ PING 2001:470:1c:11d::1(2001:470:1c:11d::1) from 2001:470:b080:103::1 : 56 data 
 PING www.google.ca(yyz12s06-in-x03.1e100.net (2607:f8b0:400b:802::2003)) from 2001:470:b080:103::1 : 56 data bytes
 64 bytes from yyz12s06-in-x03.1e100.net (2607:f8b0:400b:802::2003): icmp_seq=1 ttl=57 time=18.6 ms
 64 bytes from yyz12s06-in-x03.1e100.net (2607:f8b0:400b:802::2003): icmp_seq=2 ttl=57 time=17.2 ms
-```
-
-### Configurer ip forwarding
-
-Cette étape est nécessaire pour créer des sous-réseaux (par exemple avec Docker) mais
-on ne la testera pas immédiatement.
-
-**Instructions**
-1. Ouvrir une session sur l'ordinateur qui recevra le nouveau réseau.
-2. `sudo cp /etc/sysctl.conf /etc/sysctl.conf.old`
-3. Configurer le fichier /etc/sysctl.conf:
-   - `sudo nano /etc/sysctl.conf`
-   - Noter que eth0 est mon interface LAN - ajuster les instructions suivantes au besoin
-   - Ajouter :
-      ```
-      net.ipv6.conf.all.forwarding=1
-      ```
-4. `sudo sysctl -p`
-
-_Résultat affiché_
-
-```
-[...]
-net.ipv6.conf.all.forwarding = 1
-[...]
 ```
 
 # Références
