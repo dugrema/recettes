@@ -33,9 +33,11 @@
 ## Préparation
 
 Créer un tunnel /48 sur [Tunnelbroker](https://tunnelbroker.net/) - c'est gratuit.
-il suffit de s'enregistrer, créer un tunnel (/64) puis de cliquer sur le
-bouton _Assign /48_. Ces adresses sont statiques - j'en ai une depuis plus d'un
-an et elle n'a jamais changée.
+Il suffit de s'enregistrer, créer un tunnel (/64) puis de cliquer sur le
+bouton _Assign /48_. Sur l'image du bas, on voit que j'ai reçu _2001:470:b080_ sur la ligne _Routed /48_. 
+Ces adresses sont statiques - j'en ai une depuis plus d'un an et elle n'a jamais changée.
+
+![Exemple d'écran TunneBroker](he_details.png)
 
 En ce moment, Tunnelbroker permet de créer 5 tunnels gratuits.
 
