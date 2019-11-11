@@ -58,7 +58,7 @@ déjà prête à l'emploi si votre fournisseur internet fonctionne par DHCP.
 - [rules.v6](rules.v6)
 
 **Instructions**
-1. `apt install -y iptables-persistent`
+1. `sudo ./dtapt install -y iptables-persistent`
 2. A la question _save current IPv4 rules_ (et IPv6), repondre oui.
 2. `sudo cp /etc/iptables/rules.v4 /etc/iptables/rules.v4.old`
 3. `sudo cp /etc/iptables/rules.v6 /etc/iptables/rules.v6.old`
@@ -93,6 +93,7 @@ Chain OUTPUT (policy ACCEPT 108 packets, 10299 bytes)
 
 **Exécuter :** `sudo iptables -t nat -L -vn`
 
+_Résultat_
 ```
 Chain PREROUTING (policy ACCEPT 292 packets, 21940 bytes)
  pkts bytes target     prot opt in     out     source               destination
@@ -110,6 +111,7 @@ Chain OUTPUT (policy ACCEPT 1 packets, 76 bytes)
 
 **Exécuter :** `sudo ip6tables -L -vn`
 
+_Résultat_
 ```
 Chain INPUT (policy DROP 2 packets, 148 bytes)
  pkts bytes target     prot opt in     out     source               destination
