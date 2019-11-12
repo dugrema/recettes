@@ -152,11 +152,10 @@ _Résultat :_
 ## Configuration du pare feu
 
 Une règle _FORWARD_ doit être ajoutée au pare feu pour laisser entrer les requêtes
-vers le serveur.
+vers le serveur. Voici un exemple pour le port TCP 80 (http). La destination
+est l'adresse IPv6 utilisée par le container.
 
-1. `docker run -d --rm --name nginx --label ipv6.mapper.network=he_ipv6 nginx`
-2. `sudo ip6tables -A FORWARD -p tcp --dport 80 --destination 2001:470:b080:103:1:ee:43:40/128 -j ACCEPT`
-3. Ouvrir un navigateur vers: http://[2001:470:b080:103:1:ee:43:40]
+1. `sudo ip6tables -A FORWARD -p tcp --dport 80 --destination 2001:470:b080:103:1:ee:43:40/128 -j ACCEPT`
 
 ## Utilisation avec docker
 
@@ -179,6 +178,16 @@ adresse IPv6 est mappée pour ce container sur le réseau.
 - `--debug` : Logging niveau DEBUG
 - `--info` : Logging niveau INFO
 - `-d` : Démarre en arrière plan (background)
+
+## Le goûteur
+
+1. `docker build -t nginx_ipv6 .`
+2. `docker run -d --rm --name nginx --label ipv6.mapper.network=he_ipv6 nginx_ipv6`
+3. Ouvrir un navigateur vers: http://[2001:470:b080:103:1:ee:43:40]
+
+_Résultat dans le navigateur :_
+
+![Welcome to nginx!](nginx_ecran.png)
 
 # Références
 
