@@ -24,7 +24,7 @@ class DockerIPV6Mapper:
     def events(self):
         for raw_data in self.__docker.events():
             event = json.loads(raw_data)
-            if event['Type'] == 'container' and event['Action'] == 'attach':
+            if event['Type'] == 'container' and event['Action'] == 'start':
                 self.__logger.debug(json.dumps(event, indent=4))
                 self.attacher_container(event)
 

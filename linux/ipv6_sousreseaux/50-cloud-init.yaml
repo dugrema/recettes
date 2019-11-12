@@ -8,5 +8,5 @@ network:
         ens3:
           dhcp4: true
           addresses:
-            - 2001:470:b080:103::1/64
+            - 2001:470:b080:103::1/80
     version: 2

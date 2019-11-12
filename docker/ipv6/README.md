@@ -15,8 +15,7 @@
 
 ## Configurer ip forwarding
 
-  Cette étape est nécessaire pour créer des sous-réseaux (par exemple avec Docker) mais
-  on ne la testera pas immédiatement.
+  Cette étape est nécessaire pour créer des sous-réseaux (par exemple avec Docker).
 
   **Instructions**
   1. Ouvrir une session sur l'ordinateur qui recevra le nouveau réseau.
@@ -150,6 +149,15 @@ _Résultat :_
 ]
 ```
 
+## Configuration du pare feu
+
+Une règle _FORWARD_ doit être ajoutée au pare feu pour laisser entrer les requêtes
+vers le serveur.
+
+1. `docker run -d --rm --name nginx --label ipv6.mapper.network=he_ipv6 nginx`
+2. `sudo ip6tables -A FORWARD -p tcp --dport 80 --destination 2001:470:b080:103:1:ee:43:40/128 -j ACCEPT`
+3. Ouvrir un navigateur vers: http://[2001:470:b080:103:1:ee:43:40]
+
 ## Utilisation avec docker
 
 L'utilitaire reste en mémoire et se connecte à docker pour agir sur les événements
@@ -159,12 +167,18 @@ adresse IPv6 est mappée pour ce container sur le réseau.
 
 ## Exemples complémentaires
 
-- docker run --rm -it --name mon_container --label ipv6.mapper.network=he_ipv6 ubuntu bash
+- `docker run --rm -it --name mon_container --label ipv6.mapper.network=he_ipv6 ubuntu bash`
   - Cet exemple va toujours donner un suffixe 3d:7a:30; le suffixe est généré
     à partir de la fonction de hachage MD5 sur le littéral "mon_container".
-- docker run --rm -it --label ipv6.mapper.network=he_ipv6 --label ipv6.mapper.suffix=ab:cd:56 ubuntu bash
+- `docker run --rm -it --label ipv6.mapper.network=he_ipv6 --label ipv6.mapper.suffix=ab:cd:56 ubuntu bash`
   - Cet exemple va toujours donner un suffixe ab:cd:56 puisqu'il est fourni en paramètre.
     Le préfixe est chargé automatiquement à partir du réseau docker choisi.
+
+## Paramètres de l'utilitaire DockerIPV6Mapper.py
+
+- `--debug` : Logging niveau DEBUG
+- `--info` : Logging niveau INFO
+- `-d` : Démarre en arrière plan (background)
 
 # Références
 
