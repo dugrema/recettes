@@ -103,7 +103,7 @@ DEBUG:__main__.DockerIPV6Mapper:IPV6 Network : 2001:470:b080:103:1 / 80
 INFO:__main__.DockerIPV6Mapper:Attache container 09f5bfffe9c274dedb933f7e43e224e4f085b5d38555f782d76c8b18f7b0af61 a l'adresse 2001:470:b080:103:1:4f:4d:a2
 ```
 
-Ouvrir une troisieme session et **Exécuter :** `docker network inspect he_ipv6`
+Ouvrir une troisième session et **Exécuter :** `docker network inspect he_ipv6`
 
 _Résultat :_
 ```
@@ -160,8 +160,14 @@ adresse IPv6 est mappée pour ce container sur le réseau.
 ## Exemples complémentaires
 
 - docker run --rm -it --name mon_container --label ipv6.mapper.network=he_ipv6 ubuntu bash
-  - Cet exemple va toujours donner un suffixe 3d:7a:30; le suffixe est generer
-    a partir de la fonction de hachage MD5 sur le littéral "mon_container".
+  - Cet exemple va toujours donner un suffixe 3d:7a:30; le suffixe est généré
+    à partir de la fonction de hachage MD5 sur le littéral "mon_container".
 - docker run --rm -it --label ipv6.mapper.network=he_ipv6 --label ipv6.mapper.suffix=ab:cd:56 ubuntu bash
   - Cet exemple va toujours donner un suffixe ab:cd:56 puisqu'il est fourni en paramètre.
     Le préfixe est chargé automatiquement à partir du réseau docker choisi.
+
+# Références
+
+- **Référence délicieuse :** https://docker-py.readthedocs.io/en/stable/
+- https://github.com/diefans/docker-events/tree/master/src/docker_events
+- https://docs.docker.com/engine/api/v1.30/#operation/SystemEvents
