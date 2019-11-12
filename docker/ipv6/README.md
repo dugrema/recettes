@@ -22,7 +22,6 @@
   2. `sudo cp /etc/sysctl.conf /etc/sysctl.conf.old`
   3. Configurer le fichier /etc/sysctl.conf:
      - `sudo nano /etc/sysctl.conf`
-     - Noter que eth0 est mon interface LAN - ajuster les instructions suivantes au besoin
      - Ajouter :
         ```
         net.ipv6.conf.all.forwarding=1
@@ -170,7 +169,7 @@ adresse IPv6 est mappée pour ce container sur le réseau.
   - Cet exemple va toujours donner un suffixe 3d:7a:30; le suffixe est généré
     à partir de la fonction de hachage MD5 sur le littéral "mon_container".
 - `docker run --rm -it --label ipv6.mapper.network=he_ipv6 --label ipv6.mapper.suffix=ab:cd:56 ubuntu bash`
-  - Cet exemple va toujours donner un suffixe ab:cd:56 puisqu'il est fourni en paramètre.
+  - Cet exemple va toujours donner un suffixe ab\:cd:56 puisqu'il est fourni en paramètre.
     Le préfixe est chargé automatiquement à partir du réseau docker choisi.
 
 ## Paramètres de l'utilitaire DockerIPV6Mapper.py
