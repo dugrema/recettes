@@ -176,7 +176,13 @@ adresse IPv6 est mappée pour ce container sur le réseau.
 
 - `--debug` : Logging niveau DEBUG
 - `--info` : Logging niveau INFO
-- `-d` : Démarre en arrière plan (background)
+- `-d start` : Démarre en arrière plan (background)
+
+## Installer comme service systemd
+
+1. Copier [DockerIPV6Mapper.service] vers /etc/systemd/system
+2. `sudo systemctl enable DockerIPV6Mapper`
+3. `sudo systemctl start DockerIIPV6Mapper`
 
 ## Le goûteur
 
