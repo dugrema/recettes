@@ -1,5 +1,6 @@
 [Unit]
 Description=Mappeur d'adresses IPV6 pour Docker.
+After=docker.service
 
 [Service]
 Type=simple
@@ -8,4 +9,4 @@ ExecStart=/usr/local/bin/DockerIPV6Mapper.py --info -d start
 ExecStop=/usr/local/bin/DockerIPV6Mapper.py -d stop
 
 [Install]
-WantedBy=docker.service
+WantedBy=multi-user.target
