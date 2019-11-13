@@ -58,6 +58,12 @@ class DockerIPV6Mapper:
 
     def hash_container(self, container_name):
         m = hashlib.md5()
+
+        split_name = container_name.split('.')
+        if len(split_name) == 3:
+            # Container dans un service, on garde "nom_service.numero_service"
+            container_name = '.'.join(split_name[0:2])
+
         m.update(container_name.encode('utf-8'))
         digest = m.digest()
 
